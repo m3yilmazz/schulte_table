@@ -2,20 +2,20 @@ import 'package:flutter/material.dart';
 
 import 'main.dart';
 
-class ResultPage extends StatefulWidget  {
-  final String bestTimeName,
-      previousGameModeRoute,
-      gameModeName;
+class ResultPage extends StatefulWidget {
+  final String bestTimeName, previousGameModeRoute, gameModeName;
   final List<int> list;
   final bool isReverse;
 
-  const ResultPage(this.bestTimeName, this.gameModeName, this.list, this.previousGameModeRoute, this.isReverse, {super.key});
+  const ResultPage(this.bestTimeName, this.gameModeName, this.list,
+      this.previousGameModeRoute, this.isReverse,
+      {super.key});
 
   @override
   _ResultPageState createState() => _ResultPageState();
 }
 
-class _ResultPageState extends State<ResultPage>{
+class _ResultPageState extends State<ResultPage> {
   @override
   void initState() {
     super.initState();
@@ -34,6 +34,16 @@ class _ResultPageState extends State<ResultPage>{
             bestTimeClassicOriginal = globalTimer;
           }
           tempBestTime = bestTimeClassicOriginal;
+        }
+        break;
+      case "bestTimeClassicOriginalReverse":
+        {
+          if (hasRoundFinished &&
+              (bestTimeClassicOriginalReverse == 0 ||
+                  globalTimer < bestTimeClassicOriginalReverse)) {
+            bestTimeClassicOriginalReverse = globalTimer;
+          }
+          tempBestTime = bestTimeClassicOriginalReverse;
         }
         break;
     }
@@ -56,8 +66,10 @@ class _ResultPageState extends State<ResultPage>{
             child: ListView(
                 children: List.generate(
                     resultList.length,
-                        (index) => Text(resultList[index],
-                        textAlign: TextAlign.center)))));
+                    (index) => Text(
+                        resultList[index],
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 16.0))))));
   }
 
   @override
@@ -65,25 +77,24 @@ class _ResultPageState extends State<ResultPage>{
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.white),
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () =>
                 Navigator.popUntil(context, ModalRoute.withName("/"))),
-        title: Text(
-          "${widget.gameModeName} Results",
-          style: const TextStyle(color: Colors.white)),
+        title: Text("${widget.gameModeName} Results",
+            style: const TextStyle(color: Colors.white)),
         backgroundColor: Colors.deepPurple,
       ),
       body: Center(
         child: Column(
           children: [
+            Container(child: printTimeSpentToFindNumbers()),
             ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.deepPurpleAccent),
-              onPressed: () =>
-                  Navigator.pushNamed(context, widget.previousGameModeRoute),
-              child: const Text("Play Again!", style: TextStyle(color: Colors.white))),
-            Container(
-                child:
-                printTimeSpentToFindNumbers())
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.deepPurpleAccent),
+                onPressed: () =>
+                    Navigator.pushNamed(context, widget.previousGameModeRoute),
+                child: const Text("Play Again!",
+                    style: TextStyle(color: Colors.white)))
           ],
         ),
       ),

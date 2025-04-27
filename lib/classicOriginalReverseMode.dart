@@ -4,20 +4,20 @@ import 'package:flutter/material.dart';
 import 'main.dart';
 import 'resultPage.dart';
 
-class ClassicOriginalModePlayGround extends StatefulWidget {
+class ClassicOriginalReverseModePlayGround extends StatefulWidget {
   final ValueChanged<int> parentAction;
 
-  const ClassicOriginalModePlayGround(
+  const ClassicOriginalReverseModePlayGround(
       {required super.key, required this.parentAction});
 
   @override
-  _ClassicOriginalModePlayGroundState createState() =>
-      _ClassicOriginalModePlayGroundState();
+  _ClassicOriginalReverseModePlayGroundState createState() =>
+      _ClassicOriginalReverseModePlayGroundState();
 }
 
-class _ClassicOriginalModePlayGroundState
-    extends State<ClassicOriginalModePlayGround> {
-  _ClassicOriginalModePlayGroundState() {
+class _ClassicOriginalReverseModePlayGroundState
+    extends State<ClassicOriginalReverseModePlayGround> {
+  _ClassicOriginalReverseModePlayGroundState() {
     var random = Random();
     do {
       var checkIsValidInList = random.nextInt(MAX_ELEMENT_NUMBER) + 1;
@@ -34,10 +34,10 @@ class _ClassicOriginalModePlayGroundState
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.all(1),
+      margin: EdgeInsets.all(1),
       child: OutlinedButton(
         onPressed: () {
-          if (sequenceControllerList.first == _number) {
+          if (sequenceControllerList.last == _number) {
             var sumOfAllExistingElementsInList = 0;
 
             timePassedToFindNumbers.forEach((element) {
@@ -45,10 +45,10 @@ class _ClassicOriginalModePlayGroundState
             });
             timePassedToFindNumbers
                 .add(globalTimer - sumOfAllExistingElementsInList);
-            sequenceControllerList.removeAt(0);
+            sequenceControllerList.removeLast();
 
-            if (_number + 1 < MAX_ELEMENT_NUMBER + 1) {
-              widget.parentAction(_number + 1);
+            if (0 < _number - 1) {
+              widget.parentAction(_number - 1);
             }
 
             if (sequenceControllerList.isEmpty) {
@@ -58,11 +58,11 @@ class _ClassicOriginalModePlayGroundState
                   context,
                   MaterialPageRoute(
                       builder: (context) => ResultPage(
-                          "bestTimeClassicOriginal",
-                          "Classic Original Mode",
+                          "bestTimeClassicOriginalReverse",
+                          "Classic Original Reverse Mode",
                           timePassedToFindNumbers,
-                          "/classicOriginalMode",
-                          false)));
+                          "/classicOriginalReverseMode",
+                          true)));
             }
           }
         },
