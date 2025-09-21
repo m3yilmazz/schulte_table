@@ -69,7 +69,7 @@ class _ResultPageState extends State<ResultPage> {
                     (index) => Text(
                         resultList[index],
                         textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 16.0))))));
+                        style: const TextStyle(fontSize: 16.0))))));
   }
 
   @override

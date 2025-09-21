@@ -34,15 +34,15 @@ class _ClassicOriginalReverseModePlayGroundState
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.all(1),
+      margin: const EdgeInsets.all(1),
       child: OutlinedButton(
         onPressed: () {
           if (sequenceControllerList.last == _number) {
             var sumOfAllExistingElementsInList = 0;
 
-            timePassedToFindNumbers.forEach((element) {
+            for (var element in timePassedToFindNumbers) {
               sumOfAllExistingElementsInList += element;
-            });
+            }
             timePassedToFindNumbers
                 .add(globalTimer - sumOfAllExistingElementsInList);
             sequenceControllerList.removeLast();

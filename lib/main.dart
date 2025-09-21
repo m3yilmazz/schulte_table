@@ -28,7 +28,7 @@ void main() {
     debugShowCheckedModeBanner: false,
     initialRoute: "/",
     routes: {
-      "/": (context) => HomeRoute(),
+      "/": (context) => const HomeRoute(),
       "/classicOriginalModePlayButton": (context) => PlayButton(
           "Classic Original Mode",
           "/classicOriginalMode",
@@ -37,14 +37,16 @@ void main() {
           "Classic Original Reverse Mode",
           "/classicOriginalReverseMode",
           bestTimeClassicOriginalReverse),
-      "/classicOriginalMode": (context) => ClassicOriginalMode(),
-      "/classicOriginalReverseMode": (context) => ClassicOriginalReverseMode(),
+      "/classicOriginalMode": (context) => const ClassicOriginalMode(),
+      "/classicOriginalReverseMode": (context) => const ClassicOriginalReverseMode(),
       "/privacyPolicy": (context) => const PrivacyPolicy(),
     },
   ));
 }
 
 class HomeRoute extends StatelessWidget {
+  const HomeRoute({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -99,7 +101,7 @@ class HomeRoute extends StatelessWidget {
                   ),
                 )),
             child: const Text("Classic Original Reverse",
-                style: const TextStyle(color: Colors.white, fontSize: 18.0),
+                style: TextStyle(color: Colors.white, fontSize: 18.0),
                 textAlign: TextAlign.center),
           ),
         ],
@@ -151,7 +153,7 @@ class TimerManagement extends StatefulWidget {
   late bool isReverse;
 
   TimerManagement(this.bestTimeName, this.gameModeName, this.list,
-      this.previousGameModeRoute, this.isReverse);
+      this.previousGameModeRoute, this.isReverse, {super.key});
 
   @override
   _TimerManagementState createState() => _TimerManagementState();
@@ -194,7 +196,7 @@ class _TimerManagementState extends State<TimerManagement> {
 
   @override
   Widget build(BuildContext context) {
-    return Text("Time: " + (globalTimer / 1000).toStringAsFixed(3));
+    return Text("Time: ${(globalTimer / 1000).toStringAsFixed(3)}");
   }
 }
 
@@ -206,7 +208,7 @@ class PlayButton extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() {
-    return new PlayButtonState(gameModeName, routeName, bestTime);
+    return PlayButtonState(gameModeName, routeName, bestTime);
   }
 }
 
@@ -221,11 +223,11 @@ class PlayButtonState extends State<PlayButton> {
     return Scaffold(
         appBar: AppBar(
           leading: IconButton(
-              icon: Icon(Icons.arrow_back, color: Colors.white),
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
               onPressed: () =>
                   Navigator.popUntil(context, ModalRoute.withName("/"))),
           title:
-              Text("Play $gameModeName", style: TextStyle(color: Colors.white)),
+              Text("Play $gameModeName", style: const TextStyle(color: Colors.white)),
           backgroundColor: Colors.deepPurple,
         ),
         body: Center(
@@ -255,7 +257,7 @@ class PlayButtonState extends State<PlayButton> {
                   children: [
                     Expanded(
                       child: Text(
-                        "Best Time: ${this.bestTime / 1000} second(s)",
+                        "Best Time: ${bestTime / 1000} second(s)",
                         style: const TextStyle(
                             color: Colors.black, fontSize: 18.0),
                         textAlign: TextAlign.center,
@@ -287,13 +289,15 @@ class PlayButtonState extends State<PlayButton> {
 }
 
 class ClassicOriginalMode extends StatefulWidget {
+  const ClassicOriginalMode({super.key});
+
   @override
   State<StatefulWidget> createState() {
     timePassedToFindNumbers = [0];
     globalTimer = 0;
     hasRoundFinished = false;
     listMaker();
-    return new ClassicOriginalModeState();
+    return ClassicOriginalModeState();
   }
 }
 
@@ -311,7 +315,7 @@ class ClassicOriginalModeState extends State<ClassicOriginalMode> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () =>
               Navigator.popUntil(context, ModalRoute.withName("/")),
         ),
@@ -328,7 +332,7 @@ class ClassicOriginalModeState extends State<ClassicOriginalMode> {
                 child: Text("Find the Number #$internalNumberTracker")),
             Container(
                 width: 110,
-                padding: EdgeInsets.all(10),
+                padding: const EdgeInsets.all(10),
                 child: TimerManagement(
                     "bestTimeClassicOriginal",
                     "Classic Original Mode",
@@ -356,13 +360,15 @@ class ClassicOriginalModeState extends State<ClassicOriginalMode> {
 }
 
 class ClassicOriginalReverseMode extends StatefulWidget {
+  const ClassicOriginalReverseMode({super.key});
+
   @override
   State<StatefulWidget> createState() {
     timePassedToFindNumbers = [0];
     globalTimer = 0;
     hasRoundFinished = false;
     listMaker();
-    return new ClassicOriginalReverseModeState();
+    return ClassicOriginalReverseModeState();
   }
 }
 
@@ -394,7 +400,7 @@ class ClassicOriginalReverseModeState
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Container(
-                padding: EdgeInsets.all(10),
+                padding: const EdgeInsets.all(10),
                 child: Text(
                   "Find the Number #$internalNumberTracker",
                   style: const TextStyle(color: Colors.black, fontSize: 15.0),

@@ -19,11 +19,11 @@ class _PrivacyPolicyState extends State<PrivacyPolicy> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.white),
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () =>
                 Navigator.popUntil(context, ModalRoute.withName("/"))),
         title:
-            Text("Privacy Policy", style: const TextStyle(color: Colors.white)),
+            const Text("Privacy Policy", style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.deepPurple,
       ),
       body: WebViewWidget(controller: webViewController),

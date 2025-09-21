@@ -40,9 +40,9 @@ class _ClassicOriginalModePlayGroundState
           if (sequenceControllerList.first == _number) {
             var sumOfAllExistingElementsInList = 0;
 
-            timePassedToFindNumbers.forEach((element) {
+            for (var element in timePassedToFindNumbers) {
               sumOfAllExistingElementsInList += element;
-            });
+            }
             timePassedToFindNumbers
                 .add(globalTimer - sumOfAllExistingElementsInList);
             sequenceControllerList.removeAt(0);
