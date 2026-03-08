@@ -1,0 +1,192 @@
+import 'dart:math';
+
+import 'package:flutter/material.dart';
+import 'main.dart';
+import 'result_page.dart';
+
+class ClassicOriginalReverseModePlayGround extends StatefulWidget {
+  final ValueChanged<int> parentAction;
+
+  const ClassicOriginalReverseModePlayGround(
+      {required super.key, required this.parentAction});
+
+  @override
+  State<ClassicOriginalReverseModePlayGround> createState() =>
+      _ClassicOriginalReverseModePlayGroundState();
+}
+
+class _ClassicOriginalReverseModePlayGroundState
+    extends State<ClassicOriginalReverseModePlayGround> {
+  _ClassicOriginalReverseModePlayGroundState() {
+    var random = Random();
+    do {
+      var checkIsValidInList = random.nextInt(maxElementNumber) + 1;
+      if (listUsedForRandomAssignment.contains(checkIsValidInList)) {
+        _number = checkIsValidInList;
+        listUsedForRandomAssignment.remove(checkIsValidInList);
+        break;
+      }
+    } while (true);
+  }
+
+  int _number = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.all(1),
+      child: OutlinedButton(
+        onPressed: () {
+          if (sequenceControllerList.last == _number) {
+            var sumOfAllExistingElementsInList = 0;
+
+            for (var element in timePassedToFindNumbers) {
+              sumOfAllExistingElementsInList += element;
+            }
+            timePassedToFindNumbers
+                .add(globalTimer - sumOfAllExistingElementsInList);
+            sequenceControllerList.removeLast();
+
+            if (0 < _number - 1) {
+              widget.parentAction(_number - 1);
+            }
+
+            if (sequenceControllerList.isEmpty) {
+              hasRoundFinished = true;
+              timePassedToFindNumbers.removeAt(0);
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ResultPage(
+                          "bestTimeClassicOriginalReverse",
+                          "Classic Original Reverse Mode",
+                          timePassedToFindNumbers,
+                          "/classicOriginalReverseMode",
+                          true)));
+            }
+          }
+        },
+        style: OutlinedButton.styleFrom(
+          backgroundColor: Colors.deepPurpleAccent,
+          overlayColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(25),
+          ),
+        ),
+        child: Text(
+          _number.toString(),
+          style: const TextStyle(color: Colors.white, fontSize: 18.0),
+        ),
+      ),
+    );
+  }
+}
+
+class ClassicOriginalReverseMode extends StatefulWidget {
+  const ClassicOriginalReverseMode({super.key});
+
+  @override
+  State<StatefulWidget> createState() => ClassicOriginalReverseModeState();
+}
+
+class ClassicOriginalReverseModeState
+    extends State<ClassicOriginalReverseMode> {
+  int internalNumberTracker = 25;
+
+  @override
+  void initState() {
+    super.initState();
+    timePassedToFindNumbers = [0];
+    globalTimer = 0;
+    hasRoundFinished = false;
+    listMaker();
+  }
+
+  updateInternalNumberTracker(int nextNumber) {
+    setState(() {
+      internalNumberTracker = nextNumber;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () =>
+              Navigator.popUntil(context, ModalRoute.withName("/")),
+        ),
+        title: const Text("Classic Original Reverse Mode",
+            style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.deepPurple,
+      ),
+      body: Column(children: <Widget>[
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                decoration: BoxDecoration(
+                  color: Colors.deepPurple.shade50,
+                  border: Border.all(color: Colors.deepPurpleAccent, width: 2),
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.search, color: Colors.deepPurpleAccent),
+                    const SizedBox(width: 8),
+                    Text(
+                      "Find: #$internalNumberTracker",
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.deepPurple,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                decoration: BoxDecoration(
+                  color: Colors.deepPurple.shade50,
+                  border: Border.all(color: Colors.deepPurpleAccent, width: 2),
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.timer, color: Colors.deepPurpleAccent),
+                    const SizedBox(width: 8),
+                    TimerManagement(
+                      "bestTimeClassicOriginalReverse",
+                      "Classic Original Reverse Mode",
+                      timePassedToFindNumbers,
+                      "/classicOriginalReverseMode",
+                      false,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        Flexible(
+          child: GridView.count(
+              primary: false,
+              padding: const EdgeInsets.all(5),
+              crossAxisSpacing: 5,
+              mainAxisSpacing: 5,
+              crossAxisCount: 5,
+              children: List.generate(
+                  maxElementNumber,
+                  (index) => ClassicOriginalReverseModePlayGround(
+                      key: widget.key,
+                      parentAction: updateInternalNumberTracker))),
+        ),
+      ]),
+    );
+  }
+}
