@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:schulte_table/ad_helper.dart';
+import 'package:schulte_table/notification_service.dart';
 
 import 'main.dart';
 
@@ -11,6 +14,63 @@ class Settings extends StatefulWidget {
 }
 
 class _SettingsState extends State<Settings> {
+  BannerAd? _bannerAd;
+  bool _isAdLoaded = false;
+  bool _notificationsEnabled = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadBannerAd();
+    _loadNotificationPreference();
+  }
+
+  Future<void> _loadNotificationPreference() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _notificationsEnabled = prefs.getBool('notifications_enabled') ?? true;
+    });
+  }
+
+  Future<void> _toggleNotifications(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('notifications_enabled', value);
+    setState(() {
+      _notificationsEnabled = value;
+    });
+
+    if (value) {
+      await NotificationService().requestPermissions();
+      await NotificationService().scheduleNextNotification();
+    } else {
+      await NotificationService().cancelAllNotifications();
+    }
+  }
+
+  void _loadBannerAd() {
+    _bannerAd = BannerAd(
+      adUnitId: AdHelper.bannerAdUnitId,
+      request: const AdRequest(),
+      size: AdSize.banner,
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          setState(() {
+            _isAdLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (ad, err) {
+          ad.dispose();
+        },
+      ),
+    )..load();
+  }
+
+  @override
+  void dispose() {
+    _bannerAd?.dispose();
+    super.dispose();
+  }
+
   // Wipes all 6 specific best times from disk + global RAM
   Future<void> _resetBestTimes(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
@@ -122,6 +182,48 @@ class _SettingsState extends State<Settings> {
               const Padding(
                 padding: EdgeInsets.only(left: 8.0, bottom: 8.0, top: 10.0),
                 child: Text(
+                  "Notifications",
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.deepPurple,
+                  ),
+                ),
+              ),
+              Card(
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15)),
+                child: SwitchListTile(
+                  contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 20, vertical: 5),
+                  title: const Text(
+                    'Daily Reminders',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.indigo,
+                    ),
+                  ),
+                  subtitle: const Text(
+                    'Receive occasional notifications to train your brain.',
+                    style: TextStyle(fontSize: 14),
+                  ),
+                  value: _notificationsEnabled,
+                  activeTrackColor: Colors.deepPurple.shade100,
+                  activeThumbColor: Colors.purpleAccent,
+                  onChanged: _toggleNotifications,
+                  secondary: const Icon(
+                    Icons.notifications_active_rounded,
+                    color: Colors.purpleAccent,
+                    size: 32,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 30),
+              const Padding(
+                padding: EdgeInsets.only(left: 8.0, bottom: 8.0, top: 10.0),
+                child: Text(
                   "Data Management",
                   style: TextStyle(
                     fontSize: 20,
@@ -210,6 +312,15 @@ class _SettingsState extends State<Settings> {
           ),
         ),
       ),
+      bottomNavigationBar: _isAdLoaded && _bannerAd != null
+          ? SafeArea(
+              child: SizedBox(
+                width: _bannerAd!.size.width.toDouble(),
+                height: _bannerAd!.size.height.toDouble(),
+                child: AdWidget(ad: _bannerAd!),
+              ),
+            )
+          : const SizedBox.shrink(),
     );
   }
 }

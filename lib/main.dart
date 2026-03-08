@@ -10,6 +10,9 @@ import 'package:schulte_table/reaction_mode.dart';
 import 'package:schulte_table/privacy_policy.dart';
 import 'package:schulte_table/result_page.dart';
 import 'package:schulte_table/settings.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:schulte_table/app_open_ad_manager.dart';
+import 'package:schulte_table/notification_service.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -28,8 +31,32 @@ int bestTimeReaction = 0,
 
 bool hasRoundFinished = false;
 
+AppOpenAdManager appOpenAdManager = AppOpenAdManager();
+late AppLifecycleListener appLifecycleListener;
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  MobileAds.instance.initialize();
+  appOpenAdManager.loadAd();
+  
+  await NotificationService().init();
+  await NotificationService().requestPermissions();
+  await NotificationService().scheduleNextNotification();
+
+  appLifecycleListener = AppLifecycleListener(
+    onStateChange: (state) {
+      if (state == AppLifecycleState.resumed) {
+        appOpenAdManager.showAdIfAvailable();
+      }
+    },
+  );
+
+  // Attempt to show the Ad immediately on cold boot after a brief delay 
+  // to allow the Google servers time to fetch the payload.
+  Future.delayed(const Duration(seconds: 3), () {
+    appOpenAdManager.showAdIfAvailable();
+  });
+
   SharedPreferences prefs = await SharedPreferences.getInstance();
   
   bestTimeClassicOriginal = prefs.getInt('bestTimeClassicOriginal') ?? 0;
