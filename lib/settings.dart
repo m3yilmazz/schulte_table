@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:schulte_table/ad_helper.dart';
+import 'package:schulte_table/banner_ad_manager.dart';
 import 'package:schulte_table/notification_service.dart';
 
 import 'main.dart';
@@ -14,15 +13,22 @@ class Settings extends StatefulWidget {
 }
 
 class _SettingsState extends State<Settings> {
-  BannerAd? _bannerAd;
-  bool _isAdLoaded = false;
+  final _adHelper = BannerAdHelper();
   bool _notificationsEnabled = true;
 
   @override
   void initState() {
     super.initState();
-    _loadBannerAd();
+    _adHelper.loadAd(onAdLoaded: () {
+      if (mounted) setState(() {});
+    });
     _loadNotificationPreference();
+  }
+
+  @override
+  void dispose() {
+    _adHelper.dispose();
+    super.dispose();
   }
 
   Future<void> _loadNotificationPreference() async {
@@ -47,29 +53,7 @@ class _SettingsState extends State<Settings> {
     }
   }
 
-  void _loadBannerAd() {
-    _bannerAd = BannerAd(
-      adUnitId: AdHelper.bannerAdUnitId,
-      request: const AdRequest(),
-      size: AdSize.banner,
-      listener: BannerAdListener(
-        onAdLoaded: (ad) {
-          setState(() {
-            _isAdLoaded = true;
-          });
-        },
-        onAdFailedToLoad: (ad, err) {
-          ad.dispose();
-        },
-      ),
-    )..load();
-  }
 
-  @override
-  void dispose() {
-    _bannerAd?.dispose();
-    super.dispose();
-  }
 
   // Wipes all 6 specific best times from disk + global RAM
   Future<void> _resetBestTimes(BuildContext context) async {
@@ -157,23 +141,26 @@ class _SettingsState extends State<Settings> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () => Navigator.pop(context)),
         title: const Text("Settings",
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: Colors.transparent,
         elevation: 0,
       ),
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Colors.deepPurple.shade50, Colors.white],
+            colors: [Colors.deepPurple, Colors.white],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
+            stops: [0.0, 0.3],
           ),
         ),
+        child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -311,16 +298,9 @@ class _SettingsState extends State<Settings> {
             ],
           ),
         ),
+        ),
       ),
-      bottomNavigationBar: _isAdLoaded && _bannerAd != null
-          ? SafeArea(
-              child: SizedBox(
-                width: _bannerAd!.size.width.toDouble(),
-                height: _bannerAd!.size.height.toDouble(),
-                child: AdWidget(ad: _bannerAd!),
-              ),
-            )
-          : const SizedBox.shrink(),
+      bottomNavigationBar: _adHelper.buildBannerWidget(),
     );
   }
 }

@@ -1,4 +1,3 @@
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'main.dart';
@@ -15,15 +14,7 @@ class ClassicLightModePlayGround extends StatefulWidget {
 class _ClassicLightModePlayGroundState
     extends State<ClassicLightModePlayGround> {
   _ClassicLightModePlayGroundState() {
-    var random = Random();
-    do {
-      var checkIsValidInList = random.nextInt(maxElementNumber) + 1;
-      if (listUsedForRandomAssignment.contains(checkIsValidInList)) {
-        _number = checkIsValidInList;
-        listUsedForRandomAssignment.remove(checkIsValidInList);
-        break;
-      }
-    } while (true);
+    _number = listUsedForRandomAssignment.removeLast();
   }
 
   int _number = 0;
@@ -32,19 +23,21 @@ class _ClassicLightModePlayGroundState
   @override
   Widget build(BuildContext context) {
     return Visibility(
-      visible: _hasBeenPressed ? false : true,
+      visible: !_hasBeenPressed,
       child: Container(
-        margin: const EdgeInsets.all(1),
-        child: OutlinedButton(
-          style: OutlinedButton.styleFrom(
+        margin: const EdgeInsets.all(2),
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
             backgroundColor: Colors.deepPurpleAccent,
-            overlayColor: Colors.white,
+            foregroundColor: Colors.white,
+            elevation: 6,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(25),
+              borderRadius: BorderRadius.circular(15),
             ),
+            padding: EdgeInsets.zero,
           ),
           onPressed: () {
-            if (sequenceControllerList.first == _number) {
+            if (sequenceControllerList.isNotEmpty && sequenceControllerList.first == _number) {
               var sumOfAllExistingElementsInList = 0;
               for (var element in timePassedToFindNumbers) {
                 sumOfAllExistingElementsInList += element;
@@ -57,7 +50,7 @@ class _ClassicLightModePlayGroundState
               }
 
               setState(() {
-                _hasBeenPressed = !_hasBeenPressed;
+                _hasBeenPressed = true;
               });
               if (sequenceControllerList.isEmpty) {
                 hasRoundFinished = true;
@@ -76,7 +69,11 @@ class _ClassicLightModePlayGroundState
           },
           child: Text(
             _number.toString(),
-            style: const TextStyle(color: Colors.white, fontSize: 18.0),
+            style: const TextStyle(
+              color: Colors.white, 
+              fontSize: 26.0, 
+              fontWeight: FontWeight.bold
+            ),
           ),
         ),
       ),
@@ -112,82 +109,99 @@ class ClassicLightModeState extends State<ClassicLightMode> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () =>
               Navigator.popUntil(context, ModalRoute.withName("/")),
         ),
-        title: const Text("Classic Light Mode",
-            style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.deepPurple,
+        title: const Text("Classic Light",
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
       ),
-      body: Column(children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                decoration: BoxDecoration(
-                  color: Colors.deepPurple.shade50,
-                  border: Border.all(color: Colors.deepPurpleAccent, width: 2),
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.search, color: Colors.deepPurpleAccent),
-                    const SizedBox(width: 8),
-                    Text(
-                      "Find: #$internalNumberTracker",
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.deepPurple,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                decoration: BoxDecoration(
-                  color: Colors.deepPurple.shade50,
-                  border: Border.all(color: Colors.deepPurpleAccent, width: 2),
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.timer, color: Colors.deepPurpleAccent),
-                    const SizedBox(width: 8),
-                    TimerManagement(
-                      "bestTimeClassicLight",
-                      "Classic Light Mode",
-                      timePassedToFindNumbers,
-                      "/classicLightMode",
-                      false,
-                    ),
-                  ],
-                ),
-              ),
-            ],
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.deepPurple, Colors.white],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            stops: [0.0, 0.3],
           ),
         ),
-        Flexible(
-          child: GridView.count(
-              primary: false,
-              padding: const EdgeInsets.all(5),
-              crossAxisSpacing: 5,
-              mainAxisSpacing: 5,
-              crossAxisCount: 5,
-              children: List.generate(
-                  maxElementNumber,
-                  (index) => ClassicLightModePlayGround(
-                      key: widget.key,
-                      parentAction: updateInternalNumberTracker))),
+        child: SafeArea(
+          child: Column(children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Card(
+                    elevation: 6,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.search, color: Colors.deepPurpleAccent, size: 28),
+                          const SizedBox(width: 8),
+                          Text(
+                            "Find: #$internalNumberTracker",
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.deepPurple,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Card(
+                    elevation: 6,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.timer, color: Colors.deepPurpleAccent, size: 28),
+                          const SizedBox(width: 8),
+                          TimerManagement(
+                            "bestTimeClassicLight",
+                            "Classic Light Mode",
+                            timePassedToFindNumbers,
+                            "/classicLightMode",
+                            false,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 10),
+            Flexible(
+              child: GridView.count(
+                  primary: false,
+                  padding: const EdgeInsets.all(10),
+                  crossAxisSpacing: 8,
+                  mainAxisSpacing: 8,
+                  crossAxisCount: 5,
+                  children: List.generate(
+                      maxElementNumber,
+                      (index) => ClassicLightModePlayGround(
+                          key: widget.key,
+                          parentAction: updateInternalNumberTracker))),
+            ),
+          ]),
         ),
-      ]),
+      ),
     );
   }
 }

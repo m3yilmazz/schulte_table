@@ -12,8 +12,8 @@ class AdHelper {
       throw UnsupportedError("Unsupported platform");
     } else {
       if (Platform.isAndroid) {
-        // TODO: Replace with your real Android App Open Ad Unit ID from AdMob
-        return 'ca-app-pub-XXXXXXXXXXXXXXXX/YYYYYYYYYY'; 
+        // App Open Ad Unit ID from AdMob
+        return 'ca-app-pub-1752286470053824/8023407049'; 
       } else if (Platform.isIOS) {
         // TODO: Replace with your real iOS App Open Ad Unit ID from AdMob
         return 'ca-app-pub-XXXXXXXXXXXXXXXX/ZZZZZZZZZZ';
@@ -32,8 +32,8 @@ class AdHelper {
       throw UnsupportedError("Unsupported platform");
     } else {
       if (Platform.isAndroid) {
-        // TODO: Replace with your real Android Banner Ad Unit ID from AdMob
-        return 'ca-app-pub-XXXXXXXXXXXXXXXX/AAAAAAA'; 
+        // Android Banner Ad Unit ID from AdMob
+        return 'ca-app-pub-1752286470053824/5426362977'; 
       } else if (Platform.isIOS) {
         // TODO: Replace with your real iOS Banner Ad Unit ID from AdMob
         return 'ca-app-pub-XXXXXXXXXXXXXXXX/BBBBBBB';

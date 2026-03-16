@@ -9,24 +9,44 @@ class PrivacyPolicy extends StatefulWidget {
 }
 
 class _PrivacyPolicyState extends State<PrivacyPolicy> {
-  final webViewController = WebViewController()
-    ..setJavaScriptMode(JavaScriptMode.disabled)
-    ..loadRequest(Uri.parse(
-        "https://www.meyilmaz.com/apps/android/schulte-table/docs/privacy-policy.html"));
+  late final WebViewController webViewController;
+
+  @override
+  void initState() {
+    super.initState();
+    webViewController = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.disabled)
+      ..loadRequest(Uri.parse(
+          "https://www.meyilmaz.com/apps/android/schulte-table/docs/privacy-policy.html"));
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () =>
-                Navigator.popUntil(context, ModalRoute.withName("/"))),
+            onPressed: () => Navigator.pop(context)),
         title:
-            const Text("Privacy Policy", style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.deepPurple,
+            const Text("Privacy Policy", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
       ),
-      body: WebViewWidget(controller: webViewController),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.deepPurple, Colors.white],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            stops: [0.0, 0.3],
+          ),
+        ),
+        child: SafeArea(
+          child: WebViewWidget(controller: webViewController),
+        ),
+      ),
     );
   }
 }
+

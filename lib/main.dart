@@ -11,6 +11,8 @@ import 'package:schulte_table/privacy_policy.dart';
 import 'package:schulte_table/result_page.dart';
 import 'package:schulte_table/settings.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:schulte_table/ad_helper.dart';
+import 'package:schulte_table/play_button.dart';
 import 'package:schulte_table/app_open_ad_manager.dart';
 import 'package:schulte_table/notification_service.dart';
 
@@ -75,29 +77,35 @@ Future<void> main() async {
       "/": (context) => const HomeRoute(),
       "/settings": (context) => const Settings(),
       "/classicOriginalModePlayButton": (context) => PlayButton(
-          "Classic Original Mode",
+          "Classic Original",
           "/classicOriginalMode",
-          bestTimeClassicOriginal),
+          bestTimeClassicOriginal,
+          "Find the numbers in ascending order from 1 to 25.\n\nWatch out for the next number!\nYou only have 60 seconds!\n\nGood Luck!"),
       "/classicOriginalReverseModePlayButton": (context) => PlayButton(
-          "Classic Original Reverse Mode",
+          "Classic Original Reverse",
           "/classicOriginalReverseMode",
-          bestTimeClassicOriginalReverse),
+          bestTimeClassicOriginalReverse,
+          "Find the numbers in descending order from 25 to 1.\n\nWatch out for the next number!\nYou only have 60 seconds!\n\nGood Luck!"),
       "/classicLightModePlayButton": (context) => PlayButton(
-          "Classic Light Mode",
+          "Classic Light",
           "/classicLightMode",
-          bestTimeClassicLight),
+          bestTimeClassicLight,
+          "Find the numbers in ascending order from 1 to 25.\nNumbers disappear after you tap them!\n\nYou only have 60 seconds!\n\nGood Luck!"),
       "/classicLightReverseModePlayButton": (context) => PlayButton(
-          "Classic Light Reverse Mode",
+          "Classic Light Reverse",
           "/classicLightReverseMode",
-          bestTimeClassicLightReverse),
+          bestTimeClassicLightReverse,
+          "Find the numbers in descending order from 25 to 1.\nNumbers disappear after you tap them!\n\nYou only have 60 seconds!\n\nGood Luck!"),
       "/memoryModePlayButton": (context) => PlayButton(
           "Memory Mode",
           "/memoryMode",
-          bestTimeMemory),
+          bestTimeMemory,
+          "Numbers are visible for 3 seconds, then disappear!\nFind them in ascending order from 1 to 25.\nA misclick reveals them again briefly.\n\nGood Luck!"),
       "/reactionModePlayButton": (context) => PlayButton(
           "Reaction Mode",
           "/reactionMode",
-          bestTimeReaction),
+          bestTimeReaction,
+          "A red target cell will guide you to the next number.\nFind them in ascending order from 1 to 25.\nTest your reflexes!\n\nGood Luck!"),
       "/classicOriginalMode": (context) => const ClassicOriginalMode(),
       "/classicOriginalReverseMode": (context) => const ClassicOriginalReverseMode(),
       "/classicLightMode": (context) => const ClassicLightMode(),
@@ -116,116 +124,143 @@ class HomeRoute extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title:
-            const Text("Schulte Table", style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.deepPurple,
+        title: const Text("Schulte Table",
+            style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 1.2)),
+        backgroundColor: Colors.transparent, // Making AppBar transparent
+        elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings, color: Colors.white),
+            icon: const Icon(Icons.settings, color: Colors.white, size: 28),
             onPressed: () {
               Navigator.pushNamed(context, "/settings");
             },
           ),
         ],
       ),
-      body: GridView.count(
-        primary: false,
-        padding: const EdgeInsets.all(20),
-        crossAxisSpacing: 20,
-        mainAxisSpacing: 20,
-        crossAxisCount: 2,
-        children: <Widget>[
-          ElevatedButton(
-            onPressed: () =>
-                Navigator.pushNamed(context, "/classicOriginalModePlayButton"),
-            style: ButtonStyle(
-                backgroundColor:
-                    WidgetStateProperty.all(Colors.deepPurpleAccent),
-                shape: WidgetStateProperty.all(
-                  RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(25),
+      extendBodyBehindAppBar: true, // Let the gradient flow behind the AppBar
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.deepPurple, Colors.white],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            stops: [0.0, 0.4],
+          ),
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+            child: Column(
+              children: [
+                const SizedBox(height: 20),
+                const Center(
+                  child: Text(
+                    "Select Game Mode",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                )),
-            child: const Text(
-              "Classic Original",
-              style: TextStyle(color: Colors.white, fontSize: 18.0),
-              textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 30),
+                Expanded(
+                  child: GridView.count(
+                    primary: false,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
+                    crossAxisCount: 2,
+                    childAspectRatio: 0.9,
+                    children: <Widget>[
+                      _buildGameModeButton(
+                        context: context,
+                        title: "Classic\nOriginal",
+                        icon: Icons.grid_on_rounded,
+                        route: "/classicOriginalModePlayButton",
+                      ),
+                      _buildGameModeButton(
+                        context: context,
+                        title: "Classic\nOriginal Reverse",
+                        icon: Icons.keyboard_double_arrow_down_rounded,
+                        route: "/classicOriginalReverseModePlayButton",
+                      ),
+                      _buildGameModeButton(
+                        context: context,
+                        title: "Classic\nLight",
+                        icon: Icons.lightbulb_outline_rounded,
+                        route: "/classicLightModePlayButton",
+                      ),
+                      _buildGameModeButton(
+                        context: context,
+                        title: "Classic\nLight Reverse",
+                        icon: Icons.highlight_remove_rounded,
+                        route: "/classicLightReverseModePlayButton",
+                      ),
+                      _buildGameModeButton(
+                        context: context,
+                        title: "Memory\nMode",
+                        icon: Icons.psychology_rounded,
+                        route: "/memoryModePlayButton",
+                      ),
+                      _buildGameModeButton(
+                        context: context,
+                        title: "Reaction\nMode",
+                        icon: Icons.bolt_rounded,
+                        route: "/reactionModePlayButton",
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
-          ElevatedButton(
-            onPressed: () => Navigator.pushNamed(
-                context, "/classicOriginalReverseModePlayButton"),
-            style: ButtonStyle(
-                backgroundColor:
-                    WidgetStateProperty.all(Colors.deepPurpleAccent),
-                shape: WidgetStateProperty.all(
-                  RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(25),
-                  ),
-                )),
-            child: const Text("Classic Original Reverse",
-                style: TextStyle(color: Colors.white, fontSize: 18.0),
-                textAlign: TextAlign.center),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGameModeButton({
+    required BuildContext context,
+    required String title,
+    required IconData icon,
+    required String route,
+  }) {
+    return ElevatedButton(
+      onPressed: () => Navigator.pushNamed(context, route),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.deepPurple,
+        elevation: 6,
+        shadowColor: Colors.deepPurple.withOpacity(0.5),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(25),
+        ),
+        padding: const EdgeInsets.all(16.0),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          CircleAvatar(
+            backgroundColor: Colors.deepPurple.shade50,
+            radius: 30,
+            child: Icon(
+              icon,
+              size: 32,
+              color: Colors.deepPurpleAccent,
+            ),
           ),
-          ElevatedButton(
-            onPressed: () => Navigator.pushNamed(
-                context, "/classicLightModePlayButton"),
-            style: ButtonStyle(
-                backgroundColor:
-                    WidgetStateProperty.all(Colors.deepPurpleAccent),
-                shape: WidgetStateProperty.all(
-                  RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(25),
-                  ),
-                )),
-            child: const Text("Classic Light",
-                style: TextStyle(color: Colors.white, fontSize: 18.0),
-                textAlign: TextAlign.center),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pushNamed(
-                context, "/classicLightReverseModePlayButton"),
-            style: ButtonStyle(
-                backgroundColor:
-                    WidgetStateProperty.all(Colors.deepPurpleAccent),
-                shape: WidgetStateProperty.all(
-                  RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(25),
-                  ),
-                )),
-            child: const Text("Classic Light Reverse",
-                style: TextStyle(color: Colors.white, fontSize: 18.0),
-                textAlign: TextAlign.center),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pushNamed(
-                context, "/memoryModePlayButton"),
-            style: ButtonStyle(
-                backgroundColor:
-                    WidgetStateProperty.all(Colors.deepPurpleAccent),
-                shape: WidgetStateProperty.all(
-                  RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(25),
-                  ),
-                )),
-            child: const Text("Memory",
-                style: TextStyle(color: Colors.white, fontSize: 18.0),
-                textAlign: TextAlign.center),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pushNamed(
-                context, "/reactionModePlayButton"),
-            style: ButtonStyle(
-                backgroundColor:
-                    WidgetStateProperty.all(Colors.deepPurpleAccent),
-                shape: WidgetStateProperty.all(
-                  RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(25),
-                  ),
-                )),
-            child: const Text("Reaction",
-                style: TextStyle(color: Colors.white, fontSize: 18.0),
-                textAlign: TextAlign.center),
+          const SizedBox(height: 16),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 16.0,
+              fontWeight: FontWeight.bold,
+              height: 1.2,
+            ),
+            textAlign: TextAlign.center,
           ),
         ],
       ),
@@ -240,6 +275,7 @@ void listMaker() {
     listUsedForRandomAssignment.add(i + 1);
     sequenceControllerList.add(i + 1);
   }
+  listUsedForRandomAssignment.shuffle();
 }
 
 class TimerManagement extends StatefulWidget {
@@ -258,6 +294,8 @@ class _TimerManagementState extends State<TimerManagement> {
   late String bestTimeName, previousGameModeRoute, gameModeName;
   late List<int> list = List.empty(growable: true);
   late bool isReverse;
+  late Stopwatch _stopwatch;
+  Timer? _updateTimer;
 
   @override
   void initState() {
@@ -269,172 +307,48 @@ class _TimerManagementState extends State<TimerManagement> {
     previousGameModeRoute = widget.previousGameModeRoute;
     isReverse = widget.isReverse;
 
-    Timer.periodic(const Duration(milliseconds: 1), (callBack) {
-      setState(() {
-        if (hasRoundFinished) {
-          callBack.cancel();
+    _stopwatch = Stopwatch()..start();
+
+    _updateTimer = Timer.periodic(const Duration(milliseconds: 16), (callBack) {
+      if (hasRoundFinished) {
+        _stopwatch.stop();
+        callBack.cancel();
+        return;
+      }
+
+      globalTimer = _stopwatch.elapsedMilliseconds;
+      setState(() {});
+
+      if (!hasRoundFinished && globalTimer >= 60000) {
+        _stopwatch.stop();
+        callBack.cancel();
+        for (int i = list.length; i < maxElementNumber; i++) {
+          list.add(0);
         }
-        globalTimer += 1;
-        if (!hasRoundFinished && globalTimer == 60000) {
-          for (int i = list.length; i < maxElementNumber; i++) {
-            list.add(0);
-          }
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => ResultPage(bestTimeName, gameModeName,
-                      list, previousGameModeRoute, isReverse)));
-        }
-      });
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => ResultPage(bestTimeName, gameModeName,
+                    list, previousGameModeRoute, isReverse)));
+      }
     });
+  }
+
+  @override
+  void dispose() {
+    _updateTimer?.cancel();
+    _stopwatch.stop();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Text(
-      "${(globalTimer / 1000).toStringAsFixed(3)}s",
+      "${(globalTimer / 1000).toStringAsFixed(2)}s",
       style: const TextStyle(
         fontSize: 20,
         fontWeight: FontWeight.bold,
         color: Colors.deepPurple,
-      ),
-    );
-  }
-}
-
-class PlayButton extends StatefulWidget {
-  final String gameModeName, routeName;
-  final int bestTime;
-
-  const PlayButton(this.gameModeName, this.routeName, this.bestTime, {super.key});
-
-  @override
-  State<StatefulWidget> createState() => PlayButtonState();
-}
-
-class PlayButtonState extends State<PlayButton> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () =>
-                Navigator.popUntil(context, ModalRoute.withName("/"))),
-        title: Text("Play ${widget.gameModeName}",
-            style: const TextStyle(color: Colors.white)),
-        backgroundColor: Colors.deepPurple,
-      ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.deepPurple.shade50, Colors.white],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Card(
-                  elevation: 4,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20)),
-                  child: Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.info_outline,
-                                color: Colors.deepPurpleAccent, size: 28),
-                            const SizedBox(width: 10),
-                            Text(
-                              "How to Play",
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.deepPurple.shade800,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        const Text(
-                          "Find the numbers in the order placed at the upper left corner.\n\n"
-                          "Watch out for the next number!\n"
-                          "You only have 60 seconds!\n\n"
-                          "Good Luck!",
-                          style: TextStyle(
-                              fontSize: 16, height: 1.5, color: Colors.black87),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 30),
-                Card(
-                  elevation: 4,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20)),
-                  color: Colors.deepPurple.shade50,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 16.0, horizontal: 24.0),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.emoji_events,
-                            color: Colors.orange, size: 30),
-                        const SizedBox(width: 12),
-                        Text(
-                          "Best Time: ${widget.bestTime ~/ 1000}s",
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.deepPurple,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 50),
-                SizedBox(
-                  width: double.infinity,
-                  height: 60,
-                  child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.deepPurpleAccent,
-                      iconColor: Colors.white,
-                      elevation: 8,
-                      shadowColor: Colors.deepPurpleAccent,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                    ),
-                    icon: const Icon(Icons.play_arrow, size: 30),
-                    label: const Text(
-                      "PLAY",
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.5),
-                    ),
-                    onPressed: () =>
-                        Navigator.pushNamed(context, widget.routeName),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
       ),
     );
   }

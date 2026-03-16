@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:schulte_table/banner_ad_manager.dart';
 
 import 'main.dart';
 
@@ -17,9 +18,96 @@ class ResultPage extends StatefulWidget {
 }
 
 class _ResultPageState extends State<ResultPage> {
+  final _adHelper = BannerAdHelper();
+  int _bestTime = 0;
+  List<Widget> _logWidgets = [];
+
   @override
   void initState() {
     super.initState();
+    _adHelper.loadAd(onAdLoaded: () {
+      if (mounted) setState(() {});
+    });
+    _computeResults();
+  }
+
+  @override
+  void dispose() {
+    _adHelper.dispose();
+    super.dispose();
+  }
+
+  void _computeResults() {
+    // Compute best time and save if needed
+    int currentBest = _getBestTime(widget.bestTimeName);
+
+    if (hasRoundFinished && (currentBest == 0 || globalTimer < currentBest)) {
+      currentBest = globalTimer;
+      _setBestTime(widget.bestTimeName, currentBest);
+      _saveBestTime(widget.bestTimeName, currentBest);
+    }
+    _bestTime = currentBest;
+
+    // Build log widgets once
+    _logWidgets = List.generate(maxElementNumber, (i) {
+      final label = widget.isReverse ? '${maxElementNumber - i}' : '${i + 1}';
+      return ListTile(
+        leading: CircleAvatar(
+          backgroundColor: Colors.deepPurpleAccent,
+          child: Text(
+            label,
+            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+        ),
+        title: Text(
+          'Time taken: ${widget.list[i] / 1000}s',
+          style: const TextStyle(fontSize: 16.0, fontWeight: FontWeight.w500),
+        ),
+        trailing: const Icon(Icons.timer, color: Colors.grey),
+      );
+    });
+  }
+
+  int _getBestTime(String key) {
+    switch (key) {
+      case "bestTimeClassicOriginal":
+        return bestTimeClassicOriginal;
+      case "bestTimeClassicOriginalReverse":
+        return bestTimeClassicOriginalReverse;
+      case "bestTimeClassicLight":
+        return bestTimeClassicLight;
+      case "bestTimeClassicLightReverse":
+        return bestTimeClassicLightReverse;
+      case "bestTimeMemory":
+        return bestTimeMemory;
+      case "bestTimeReaction":
+        return bestTimeReaction;
+      default:
+        return 0;
+    }
+  }
+
+  void _setBestTime(String key, int value) {
+    switch (key) {
+      case "bestTimeClassicOriginal":
+        bestTimeClassicOriginal = value;
+        break;
+      case "bestTimeClassicOriginalReverse":
+        bestTimeClassicOriginalReverse = value;
+        break;
+      case "bestTimeClassicLight":
+        bestTimeClassicLight = value;
+        break;
+      case "bestTimeClassicLightReverse":
+        bestTimeClassicLightReverse = value;
+        break;
+      case "bestTimeMemory":
+        bestTimeMemory = value;
+        break;
+      case "bestTimeReaction":
+        bestTimeReaction = value;
+        break;
+    }
   }
 
   Future<void> _saveBestTime(String key, int value) async {
@@ -27,102 +115,10 @@ class _ResultPageState extends State<ResultPage> {
     await prefs.setInt(key, value);
   }
 
+
+
   @override
   Widget build(BuildContext context) {
-    int tempBestTime = 0;
-
-    switch (widget.bestTimeName) {
-      case "bestTimeClassicOriginal":
-        if (hasRoundFinished &&
-            (bestTimeClassicOriginal == 0 ||
-                globalTimer < bestTimeClassicOriginal)) {
-          bestTimeClassicOriginal = globalTimer;
-          _saveBestTime(widget.bestTimeName, globalTimer);
-        }
-        tempBestTime = bestTimeClassicOriginal;
-        break;
-      case "bestTimeClassicOriginalReverse":
-        if (hasRoundFinished &&
-            (bestTimeClassicOriginalReverse == 0 ||
-                globalTimer < bestTimeClassicOriginalReverse)) {
-          bestTimeClassicOriginalReverse = globalTimer;
-          _saveBestTime(widget.bestTimeName, globalTimer);
-        }
-        tempBestTime = bestTimeClassicOriginalReverse;
-        break;
-      case "bestTimeClassicLight":
-        if (hasRoundFinished &&
-            (bestTimeClassicLight == 0 ||
-                globalTimer < bestTimeClassicLight)) {
-          bestTimeClassicLight = globalTimer;
-          _saveBestTime(widget.bestTimeName, globalTimer);
-        }
-        tempBestTime = bestTimeClassicLight;
-        break;
-      case "bestTimeClassicLightReverse":
-        if (hasRoundFinished &&
-            (bestTimeClassicLightReverse == 0 ||
-                globalTimer < bestTimeClassicLightReverse)) {
-          bestTimeClassicLightReverse = globalTimer;
-          _saveBestTime(widget.bestTimeName, globalTimer);
-        }
-        tempBestTime = bestTimeClassicLightReverse;
-        break;
-      case "bestTimeMemory":
-        if (hasRoundFinished &&
-            (bestTimeMemory == 0 || globalTimer < bestTimeMemory)) {
-          bestTimeMemory = globalTimer;
-          _saveBestTime(widget.bestTimeName, globalTimer);
-        }
-        tempBestTime = bestTimeMemory;
-        break;
-      case "bestTimeReaction":
-        if (hasRoundFinished &&
-            (bestTimeReaction == 0 || globalTimer < bestTimeReaction)) {
-          bestTimeReaction = globalTimer;
-          _saveBestTime(widget.bestTimeName, globalTimer);
-        }
-        tempBestTime = bestTimeReaction;
-        break;
-    }
-
-    List<Widget> logWidgets = [];
-    if (widget.isReverse) {
-      for (int i = 0; i < maxElementNumber; i++) {
-        logWidgets.add(ListTile(
-          leading: CircleAvatar(
-            backgroundColor: Colors.deepPurpleAccent,
-            child: Text(
-              '${maxElementNumber - i}',
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-            ),
-          ),
-          title: Text(
-            'Time taken: ${widget.list[i] / 1000}s',
-            style: const TextStyle(fontSize: 16.0, fontWeight: FontWeight.w500),
-          ),
-          trailing: const Icon(Icons.timer, color: Colors.grey),
-        ));
-      }
-    } else {
-      for (int i = 0; i < maxElementNumber; i++) {
-        logWidgets.add(ListTile(
-          leading: CircleAvatar(
-            backgroundColor: Colors.deepPurpleAccent,
-            child: Text(
-              '${i + 1}',
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-            ),
-          ),
-          title: Text(
-            'Time taken: ${widget.list[i] / 1000}s',
-            style: const TextStyle(fontSize: 16.0, fontWeight: FontWeight.w500),
-          ),
-          trailing: const Icon(Icons.timer, color: Colors.grey),
-        ));
-      }
-    }
-
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -160,7 +156,7 @@ class _ResultPageState extends State<ResultPage> {
                             const Icon(Icons.emoji_events, color: Colors.orange, size: 40),
                             const SizedBox(height: 10),
                             const Text("Best Time", style: TextStyle(color: Colors.grey, fontSize: 16, fontWeight: FontWeight.bold)),
-                            Text("${tempBestTime / 1000}s", style: const TextStyle(color: Colors.deepPurple, fontSize: 24, fontWeight: FontWeight.bold)),
+                            Text("${_bestTime / 1000}s", style: const TextStyle(color: Colors.deepPurple, fontSize: 24, fontWeight: FontWeight.bold)),
                           ],
                         ),
                       ),
@@ -201,8 +197,8 @@ class _ResultPageState extends State<ResultPage> {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                 child: ListView.separated(
                   padding: const EdgeInsets.all(8.0),
-                  itemCount: logWidgets.length,
-                  itemBuilder: (context, index) => logWidgets[index],
+                  itemCount: _logWidgets.length,
+                  itemBuilder: (context, index) => _logWidgets[index],
                   separatorBuilder: (context, index) => const Divider(indent: 20, endIndent: 20),
                 ),
               ),
@@ -232,6 +228,7 @@ class _ResultPageState extends State<ResultPage> {
           ],
         ),
       ),
+      bottomNavigationBar: _adHelper.buildBannerWidget(),
     );
   }
 }
