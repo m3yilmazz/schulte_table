@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'main.dart';
 import 'result_page.dart';
+import 'package:schulte_table/banner_ad_manager.dart';
 
 class ClassicLightReverseModePlayGround extends StatefulWidget {
   final ValueChanged<int> parentAction;
@@ -88,11 +89,15 @@ class ClassicLightReverseMode extends StatefulWidget {
 }
 
 class ClassicLightReverseModeState extends State<ClassicLightReverseMode> {
+  final _adHelper = BannerAdHelper();
   int internalNumberTracker = 25;
 
   @override
   void initState() {
     super.initState();
+    _adHelper.loadAd(onAdLoaded: () {
+      if (mounted) setState(() {});
+    });
     timePassedToFindNumbers = [0];
     globalTimer = 0;
     hasRoundFinished = false;
@@ -103,6 +108,12 @@ class ClassicLightReverseModeState extends State<ClassicLightReverseMode> {
     setState(() {
       internalNumberTracker = nextNumber;
     });
+  }
+
+  @override
+  void dispose() {
+    _adHelper.dispose();
+    super.dispose();
   }
 
   @override
@@ -201,6 +212,7 @@ class ClassicLightReverseModeState extends State<ClassicLightReverseMode> {
           ]),
         ),
       ),
+      bottomNavigationBar: _adHelper.buildBannerWidget(),
     );
   }
 }

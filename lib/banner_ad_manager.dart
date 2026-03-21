@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:schulte_table/ad_helper.dart';
-
-/// Helper to create and manage a BannerAd per screen.
+import 'package:schulte_table/ad_config.dart';/// Helper to create and manage a BannerAd per screen.
 /// Each screen gets its own ad instance to avoid the
 /// "AdWidget is already in the Widget tree" error.
 class BannerAdHelper {
@@ -10,6 +9,11 @@ class BannerAdHelper {
   bool isAdLoaded = false;
 
   void loadAd({VoidCallback? onAdLoaded}) {
+    if (!enableAdsGlobally) {
+      onAdLoaded?.call();
+      return;
+    }
+
     bannerAd = BannerAd(
       adUnitId: AdHelper.bannerAdUnitId,
       request: const AdRequest(),
@@ -37,6 +41,10 @@ class BannerAdHelper {
   /// Convenience widget builder for the bottom nav bar.
   /// Always reserves the banner height to prevent layout shifts.
   Widget buildBannerWidget() {
+    if (!enableAdsGlobally) {
+      return const SizedBox.shrink();
+    }
+    
     return SafeArea(
       child: SizedBox(
         height: AdSize.banner.height.toDouble(),

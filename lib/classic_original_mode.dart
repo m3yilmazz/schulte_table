@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'main.dart';
 import 'result_page.dart';
+import 'package:schulte_table/banner_ad_manager.dart';
 
 class ClassicOriginalModePlayGround extends StatefulWidget {
   final ValueChanged<int> parentAction;
@@ -92,11 +93,15 @@ class ClassicOriginalMode extends StatefulWidget {
 }
 
 class ClassicOriginalModeState extends State<ClassicOriginalMode> {
+  final _adHelper = BannerAdHelper();
   int internalNumberTracker = 1;
 
   @override
   void initState() {
     super.initState();
+    _adHelper.loadAd(onAdLoaded: () {
+      if (mounted) setState(() {});
+    });
     timePassedToFindNumbers = [0];
     globalTimer = 0;
     hasRoundFinished = false;
@@ -107,6 +112,12 @@ class ClassicOriginalModeState extends State<ClassicOriginalMode> {
     setState(() {
       internalNumberTracker = nextNumber;
     });
+  }
+
+  @override
+  void dispose() {
+    _adHelper.dispose();
+    super.dispose();
   }
 
   @override
@@ -205,6 +216,7 @@ class ClassicOriginalModeState extends State<ClassicOriginalMode> {
           ]),
         ),
       ),
+      bottomNavigationBar: _adHelper.buildBannerWidget(),
     );
   }
 }

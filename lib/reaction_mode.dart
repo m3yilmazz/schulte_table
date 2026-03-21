@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'main.dart';
 import 'result_page.dart';
+import 'package:schulte_table/banner_ad_manager.dart';
 
 class ReactionModePlayGround extends StatefulWidget {
   final ValueChanged<int> parentAction;
@@ -93,11 +94,15 @@ class ReactionMode extends StatefulWidget {
 }
 
 class ReactionModeState extends State<ReactionMode> {
+  final _adHelper = BannerAdHelper();
   int internalNumberTracker = 1;
 
   @override
   void initState() {
     super.initState();
+    _adHelper.loadAd(onAdLoaded: () {
+      if (mounted) setState(() {});
+    });
     timePassedToFindNumbers = [0];
     globalTimer = 0;
     hasRoundFinished = false;
@@ -108,6 +113,12 @@ class ReactionModeState extends State<ReactionMode> {
     setState(() {
       internalNumberTracker = nextNumber;
     });
+  }
+
+  @override
+  void dispose() {
+    _adHelper.dispose();
+    super.dispose();
   }
 
   @override
@@ -206,6 +217,7 @@ class ReactionModeState extends State<ReactionMode> {
           ]),
         ),
       ),
+      bottomNavigationBar: _adHelper.buildBannerWidget(),
     );
   }
 }

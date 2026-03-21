@@ -1,5 +1,6 @@
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:schulte_table/ad_helper.dart';
+import 'package:schulte_table/ad_config.dart';
 
 class AppOpenAdManager {
   AppOpenAd? _appOpenAd;
@@ -7,6 +8,8 @@ class AppOpenAdManager {
 
   /// Load an AppOpenAd.
   void loadAd() {
+    if (!enableAdsGlobally) return;
+
     AppOpenAd.load(
       adUnitId: AdHelper.appOpenAdUnitId,
       request: const AdRequest(),
@@ -28,6 +31,8 @@ class AppOpenAdManager {
 
   /// Shows the ad, if one exists and is not already being shown.
   void showAdIfAvailable() {
+    if (!enableAdsGlobally) return;
+
     if (!isAdAvailable) {
       loadAd();
       return;
